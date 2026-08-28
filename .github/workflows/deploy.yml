@@ -1,0 +1,25 @@
+name: Deploy Website
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Deploy to EC2
+        run: |
+          mkdir -p ~/.ssh
+          echo "${{ secrets.EC2_SSH_KEY }}" > ~/.ssh/github_actions
+          chmod 600 ~/.ssh/github_actions
+
+          ssh -o StrictHostKeyChecking=no \
+          -i ~/.ssh/github_actions \
+          ubuntu@47.129.24.86 \
+          "cd ~/aws-web-project && git pull && sudo cp index.html /var/www/html/index.html"
